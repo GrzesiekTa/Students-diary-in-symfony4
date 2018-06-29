@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}Zarządznie studentami{% endblock %}
+{% block body %}
+    <div class="container text-center">
+        <h1>Zarządznie studentami</h1>
+        <a class="btn btn-success btn-lg btn-block" href="{{ path('student_new') }}">Dodaj studenta</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Imie</th>
+                    <th>Nazwisko</th>
+                    <th>Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td>{{ student.id }}</td>
+                        <td>{{ student.firstname }}</td>
+                        <td>{{ student.lastname }}</td>
+                        <td>
+                            <a class="btn btn-primary" href="{{ path('student_edit', {'id': student.id}) }}">edytuj</a>
+                            {{ include('student/_delete_form.html.twig') }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">Brak wyników</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
+{% endblock %}

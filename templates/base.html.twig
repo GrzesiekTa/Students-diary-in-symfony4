@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dziennik uczniów!{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+<header>
+    <div class="container mt-4">
+        <div class="row text-center">
+            <div class="col-md-6">
+                <a href="{{ path('student_index') }}" class="btn btn-success">Zarządznie studentami</a>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ path('diary') }}" class="btn btn-success">Dziennik</a>
+            </div>
+        </div>
+    </div>
+</header>
+<main>{% block body %}{% endblock %}</main>
+{% block javascripts %}{% endblock %}
+</body>
+</html>
