@@ -40,12 +40,7 @@
             <tr>
                 <th></th>
                 {% for day in 1..daysInMonth %}
-                    {% if calendar.showDay(day)=='Sat' %}
-                        <th scope="col">{{ calendar.showDay(day) }}</th>
-                    {% else %}
-                        <th scope="col">{{ calendar.showDay(day) }}</th>
-                    {% endif %}
-
+                    <th scope="col">{{ calendar.showDay(day) }}</th>
                 {% endfor %}
             </tr>
             <tr>
