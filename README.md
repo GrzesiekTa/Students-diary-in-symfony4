@@ -6,3 +6,5 @@
 <h3>4)optional insert fake data: (php bin/console doctrine:fixtures:load)</h3>
 
 <h6>*application require support fetch api in your browser</h6>
+
+<a href="http://dziennik-ucznia.ct8.pl">http://dziennik-ucznia.ct8.pl</a>
