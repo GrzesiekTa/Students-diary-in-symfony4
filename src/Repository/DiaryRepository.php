@@ -13,87 +13,124 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Diary[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class DiaryRepository extends ServiceEntityRepository {
-	public function __construct(RegistryInterface $registry) {
-		parent::__construct($registry, Diary::class);
-	}
 
-	public function editDiary(int $student, int $year, int $month, int $day, int $status) {
+    /**
+     * @param RegistryInterface $registry
+     */
+    public function __construct(RegistryInterface $registry) {
+        parent::__construct($registry, Diary::class);
+    }
 
-		$date = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
+    /**
+     * 
+     * @param int $student
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @param int $status
+     * 
+     * @return type
+     */
+    public function editDiary(int $student, int $year, int $month, int $day, int $status) {
+        $date = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
 
-		$checkDiare = $this->findOneBy(array('student' => $student, 'date' => $date));
+        $checkDiare = $this->findOneBy(array('student' => $student, 'date' => $date));
 
-		$status = $this->getEntityManager()->getRepository('App\\Entity\\Status')->find($status);
+        $status = $this->getEntityManager()->getRepository('App\\Entity\\Status')->find($status);
 
-		if ($checkDiare == null && ($status->getId() > 1)) {
-			//insert if null and status not empty
-			return $this->insertDiary($student, $status, $date);
-		} elseif ($checkDiare && ($status->getId() > 1)) {
-			//update if isset diary and statu not emmpty
-			return $this->updateDiary($checkDiare, $status);
-		} else {
-			return $this->deleteDiary($checkDiare);
-		}
+        if ($checkDiare == null && ($status->getId() > 1)) {
+            //insert if null and status not empty
+            return $this->insertDiary($student, $status, $date);
+        } elseif ($checkDiare && ($status->getId() > 1)) {
+            //update if isset diary and statu not emmpty
+            return $this->updateDiary($checkDiare, $status);
+        } else {
+            return $this->deleteDiary($checkDiare);
+        }
+    }
 
-	}
+    /**
+     * delete Diary
+     * 
+     * @param type $checkDiare
+     * 
+     * @return string
+     */
+    private function deleteDiary($checkDiare) {
+        $em = $this->getEntityManager();
+        $em->remove($checkDiare);
+        $em->flush();
 
-	private function deleteDiary($checkDiare) {
-		$em = $this->getEntityManager();
-		$em->remove($checkDiare);
-		$em->flush();
+        return 'delete';
+    }
 
-		return 'delete';
-	}
+    /**
+     * @param type $checkDiare
+     * @param type $status
+     * @return type
+     */
+    private function updateDiary($checkDiare, $status) {
+        $checkDiare->getId();
+        $checkDiare->setStatus($status);
+        $em = $this->getEntityManager();
+        $em->flush();
 
-	private function updateDiary($checkDiare, $status) {
+        return 'update' . $checkDiare->getId();
+    }
 
-		$checkDiare->getId();
-		$checkDiare->setStatus($status);
-		$em = $this->getEntityManager();
-		$em->flush();
+    /**
+     * 
+     * @param type $student
+     * @param type $status
+     * @param type $date
+     * 
+     * @return string
+     */
+    private function insertDiary($student, $status, $date) {
+        $student = $this->getEntityManager()->getRepository('App\\Entity\\Student')->find($student);
 
-		return 'update' . $checkDiare->getId();
-	}
+        $diary = new Diary;
+        $diary->setStudent($student);
+        $diary->setDate($date);
+        $diary->setStatus($status);
 
-	private function insertDiary($student, $status, $date) {
+        $em = $this->getEntityManager();
+        $em->persist($diary);
+        $em->flush();
 
-		$student = $this->getEntityManager()->getRepository('App\\Entity\\Student')->find($student);
+        return 'insert';
+    }
 
-		$diary = new Diary;
-		$diary->setStudent($student);
-		$diary->setDate($date);
-		$diary->setStatus($status);
+    /**
+     * find By Month Year
+     * 
+     * @param int $year
+     * @param int $month
+     * 
+     * @return type
+     */
+    public function findByMonthYear(int $year = null, int $month = null) {
 
-		$em = $this->getEntityManager();
-		$em->persist($diary);
-		$em->flush();
+        if (!$month) {
+            $month = date('m');
+        }
 
-		return 'insert';
-	}
+        if (!$year) {
+            $year = date('Y');
+        }
 
-	public function findByMonthYear(int $year = null, int $month = null) {
+        $startDate = new \DateTimeImmutable("$year-$month-01T00:00:00");
+        $endDate = $startDate->modify('last day of this month')->setTime(23, 59, 59);
 
-		if ($month === null) {
-			$month = date('m');
-		}
+        $qb = $this->createQueryBuilder('p')
+                ->where('p.date >= :fromTime')
+                ->andWhere('p.date < :toTime')
+                ->leftJoin('p.student', 'student')
+                ->leftJoin('p.status', 'status')
+                ->setParameter('fromTime', $startDate)
+                ->setParameter('toTime', $endDate);
 
-		if ($year === null) {
-			$year = date('Y');
-		}
-
-		$startDate = new \DateTimeImmutable("$year-$month-01T00:00:00");
-		$endDate = $startDate->modify('last day of this month')->setTime(23, 59, 59);
-
-		$qb = $this->createQueryBuilder('p')
-
-			->where('p.date >= :fromTime')
-			->andWhere('p.date < :toTime')
-			->leftJoin('p.student', 'student')
-			->leftJoin('p.status', 'status')
-			->setParameter('fromTime', $startDate)
-			->setParameter('toTime', $endDate);
-
-		return $qb->getQuery();
-	}
+        return $qb->getQuery();
+    }
 
 }

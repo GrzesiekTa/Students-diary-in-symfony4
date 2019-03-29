@@ -14,21 +14,23 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/student")
  */
-class StudentController extends Controller
-{
+class StudentController extends Controller {
+
     /**
      * @Route("/", name="student_index", methods="GET")
+     * 
+     * @param StudentRepository $studentRepository
+     * 
+     * @return Response
      */
-    public function index(StudentRepository $studentRepository): Response
-    {
+    public function index(StudentRepository $studentRepository): Response {
         return $this->render('student/index.html.twig', ['students' => $studentRepository->findAll()]);
     }
 
     /**
      * @Route("/new", name="student_new", methods="GET|POST")
      */
-    public function new(Request $request): Response
-    {
+    public function new(Request $request): Response {
         $student = new Student();
         $form = $this->createForm(Student1Type::class, $student);
         $form->handleRequest($request);
@@ -42,16 +44,20 @@ class StudentController extends Controller
         }
 
         return $this->render('student/new.html.twig', [
-            'student' => $student,
-            'form' => $form->createView(),
+                    'student' => $student,
+                    'form' => $form->createView(),
         ]);
     }
 
     /**
      * @Route("/{id}/edit", name="student_edit", methods="GET|POST")
+     * 
+     * @param Request $request
+     * @param Student $student
+     * 
+     * @return Response
      */
-    public function edit(Request $request, Student $student): Response
-    {
+    public function edit(Request $request, Student $student): Response {
         $form = $this->createForm(Student1Type::class, $student);
         $form->handleRequest($request);
 
@@ -62,16 +68,22 @@ class StudentController extends Controller
         }
 
         return $this->render('student/edit.html.twig', [
-            'student' => $student,
-            'form' => $form->createView(),
+                    'student' => $student,
+                    'form' => $form->createView(),
         ]);
     }
 
     /**
      * @Route("/{id}", name="student_delete", methods="DELETE")
+     * 
+     * @param int $id
+     * @param Request $request
+     * @param Student $student
+     * @param DiaryRepository $diaryRepository
+     * 
+     * @return Response
      */
-    public function delete($id, Request $request, Student $student, DiaryRepository $diaryRepository): Response
-    {
+    public function delete(int $id, Request $request, Student $student, DiaryRepository $diaryRepository): Response {
         if ($this->isCsrfTokenValid('delete' . $student->getId(), $request->request->get('_token'))) {
 
             $em = $this->getDoctrine()->getManager();
@@ -88,4 +100,5 @@ class StudentController extends Controller
 
         return $this->redirectToRoute('student_index');
     }
+
 }
